@@ -1,0 +1,28 @@
+# Binaries for programs
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test binaries
+*_test
+
+# Output of `go build`
+main
+build/
+
+# IDE and Editor files
+.idea/
+.vscode/
+.DS_Store
+
+# Dependencies
+vendor/
+
+# Environment variables
+.env
+
+# Temporary files
+tmp/
+
+bin/
