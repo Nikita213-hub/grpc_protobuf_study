@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package auth.v1;
+
+option go_package = "github.com/Nikita213-hub/grpc_protobuf_study/pkg/proto/v1;authV1";
+
+
+service AuthService {
+    rpc GenToken(GenTokenReq) returns (GenTokenRes);
+    rpc VerifyToken(VerifyTokenReq) returns (VerifyTokenRes);
+}
+
+
+message GenTokenReq {
+    string user_id = 1;
+    string user_email = 2;
+}
+
+message GenTokenRes {
+    string token = 1;
+    int64 exp = 2;
+}
+
+message VerifyTokenReq {
+    string token = 1;
+    int64 exp = 2;
+}
+
+message VerifyTokenRes {
+    bool valid = 1;
+    string user_id = 2;
+    string user_email = 3;
+    int64 exp = 4;
+}
