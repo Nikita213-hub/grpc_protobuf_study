@@ -13,9 +13,9 @@ type App struct {
 	port       string
 }
 
-func NewApp(port string) *App {
+func NewApp(port string, auth authgrpc.Auth) *App {
 	server := grpc.NewServer()
-	authgrpc.Register(server)
+	authgrpc.Register(server, auth)
 	return &App{
 		gRPCserver: server,
 		port:       port,
