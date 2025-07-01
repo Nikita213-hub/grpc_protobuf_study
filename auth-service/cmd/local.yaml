@@ -1,7 +1,11 @@
 env: "local"
 
-storage_url: "test"
 
 grpc:
-  port: "44044"
+  port: 44044
   timeout: 30
+
+redis:
+  port: 6379
+  user_password: test_password
+  db: 0

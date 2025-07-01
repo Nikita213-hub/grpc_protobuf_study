@@ -9,7 +9,6 @@ vars:
   BUF: '{{.BIN_DIR}}/buf'
   PROTOC_GEN_GO: '{{.BIN_DIR}}/protoc-gen-go'
   PROTOC_GEN_GO_GRPC: '{{.BIN_DIR}}/protoc-gen-go-grpc'
-
 tasks:
   install-buf:
     desc: "Installs buf locally"

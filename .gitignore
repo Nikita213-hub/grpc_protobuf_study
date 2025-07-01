@@ -26,3 +26,6 @@ vendor/
 tmp/
 
 bin/
+
+redisdata
+redis

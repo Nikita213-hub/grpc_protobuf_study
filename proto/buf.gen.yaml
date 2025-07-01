@@ -9,6 +9,6 @@ plugins:
       - paths=source_relative
 
   - local: ../bin/protoc-gen-go-grpc
-    out: ../pkg/proto
+    out:  ../pkg/proto
     opt:
       - paths=source_relative
