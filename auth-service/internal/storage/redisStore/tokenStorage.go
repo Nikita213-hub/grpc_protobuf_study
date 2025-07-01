@@ -2,6 +2,7 @@ package redisstore
 
 import (
 	"context"
+	"errors"
 	"strconv"
 
 	"github.com/Nikita213-hub/grpc_protobuf_study/auth-service/internal/domain/models"
@@ -45,6 +46,9 @@ func (rts *RedisTokenStoarage) GetToken(ctx context.Context, token string) (*mod
 	userData, err := rts.client.HGetAll(token).Result()
 	if err != nil {
 		return nil, err
+	}
+	if len(userData) < 1 {
+		return nil, errors.New("invalid token")
 	}
 	exp, err := strconv.Atoi(userData["expires_at"])
 	if err != nil {

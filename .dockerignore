@@ -1,0 +1,12 @@
+# Exclude version control
+.git
+.gitignore
+
+# Exclude IDE/editor files
+.vscode
+.idea
+
+
+
+# Exclude specific directories
+redisdata/

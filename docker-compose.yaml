@@ -1,0 +1,51 @@
+version: '3.9'
+
+services:
+  auth:
+    build:
+      context: .
+      dockerfile: auth-service/Dockerfile
+    networks:
+      - travel_local_net
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-test_password}
+      - REDIS_USER=${REDIS_USER:-default}
+      - REDIS_USER_PASSWORD=${REDIS_USER_PASSWORD:-password}
+      - GRPC_PORT=${GRPC_PORT:-44044}
+      - GRPC_TIMEOUT=${GRPC_TIMEOUT:-30}
+    ports:
+      - "44044:44044"
+    depends_on:
+      - redis
+  redis:
+    image: bitnami/redis:latest
+    container_name: redis_container
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_USER=${REDIS_USER:-default}
+      - REDIS_USER_PASSWORD=${REDIS_USER_PASSWORD:-test_password}
+    networks:
+      - travel_local_net
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redisdata:/data
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '0.50'
+    #       memory: 512M
+    #     reservations:
+    #       cpus: '0.25'
+    #       memory: 256M
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "$REDIS_PASSWORD", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+networks:
+  travel_local_net:
+    driver: bridge

@@ -23,10 +23,11 @@ func NewApp(port string, auth authgrpc.Auth) *App {
 }
 
 func (app *App) Run() error {
-	l, err := net.Listen("tcp", fmt.Sprintf(":%s", app.port))
+	l, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%s", app.port))
 	if err != nil {
 		return err
 	}
+	fmt.Println("Running grpc auth-service server")
 	err = app.gRPCserver.Serve(l)
 	if err != nil {
 		return err

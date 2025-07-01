@@ -128,7 +128,6 @@ func (x *GenTokenRes) GetExp() int64 {
 type VerifyTokenReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
-	Exp           int64                  `protobuf:"varint,2,opt,name=exp,proto3" json:"exp,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -170,16 +169,8 @@ func (x *VerifyTokenReq) GetToken() string {
 	return ""
 }
 
-func (x *VerifyTokenReq) GetExp() int64 {
-	if x != nil {
-		return x.Exp
-	}
-	return 0
-}
-
 type VerifyTokenRes struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Valid         bool                   `protobuf:"varint,1,opt,name=valid,proto3" json:"valid,omitempty"`
 	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	UserEmail     string                 `protobuf:"bytes,3,opt,name=user_email,json=userEmail,proto3" json:"user_email,omitempty"`
 	Exp           int64                  `protobuf:"varint,4,opt,name=exp,proto3" json:"exp,omitempty"`
@@ -217,13 +208,6 @@ func (*VerifyTokenRes) Descriptor() ([]byte, []int) {
 	return file_auth_v1_auth_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *VerifyTokenRes) GetValid() bool {
-	if x != nil {
-		return x.Valid
-	}
-	return false
-}
-
 func (x *VerifyTokenRes) GetUserId() string {
 	if x != nil {
 		return x.UserId
@@ -256,12 +240,10 @@ const file_auth_v1_auth_proto_rawDesc = "" +
 	"user_email\x18\x02 \x01(\tR\tuserEmail\"5\n" +
 	"\vGenTokenRes\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\x12\x10\n" +
-	"\x03exp\x18\x02 \x01(\x03R\x03exp\"8\n" +
+	"\x03exp\x18\x02 \x01(\x03R\x03exp\"&\n" +
 	"\x0eVerifyTokenReq\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\x12\x10\n" +
-	"\x03exp\x18\x02 \x01(\x03R\x03exp\"p\n" +
-	"\x0eVerifyTokenRes\x12\x14\n" +
-	"\x05valid\x18\x01 \x01(\bR\x05valid\x12\x17\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\"Z\n" +
+	"\x0eVerifyTokenRes\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1d\n" +
 	"\n" +
 	"user_email\x18\x03 \x01(\tR\tuserEmail\x12\x10\n" +
