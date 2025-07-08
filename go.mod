@@ -8,6 +8,8 @@ require (
 )
 
 require (
+	github.com/Nikita213-hub/chat_proto v0.0.0-20250214200958-f612ea44543f // indirect
+	github.com/Nikita213-hub/travel_proto_contracts v0.0.0-20250704130114-b6d6041af6c6 // indirect
 	github.com/go-redis/redis v6.15.9+incompatible // indirect
 	golang.org/x/net v0.38.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect

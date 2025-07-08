@@ -10,3 +10,4 @@
 
 # Exclude specific directories
 redisdata/
+pgdata/

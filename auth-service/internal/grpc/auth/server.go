@@ -7,7 +7,7 @@ import (
 
 	"github.com/Nikita213-hub/grpc_protobuf_study/auth-service/internal/domain/models"
 	"github.com/Nikita213-hub/grpc_protobuf_study/auth-service/internal/validators"
-	authV1 "github.com/Nikita213-hub/grpc_protobuf_study/pkg/proto/auth/v1"
+	authV1 "github.com/Nikita213-hub/travel_proto_contracts/pkg/proto/auth/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )

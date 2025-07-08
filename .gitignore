@@ -27,5 +27,6 @@ tmp/
 
 bin/
 
+pgdata
 redisdata
 redis

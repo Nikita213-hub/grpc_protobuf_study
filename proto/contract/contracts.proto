@@ -1,0 +1,90 @@
+syntax = "proto3";
+
+package contracts.v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+option go_package = "github.com/Nikita213-hub/grpc_protobuf_study/pkg/proto/v1;contractsV1";
+
+
+enum ContractState {
+  CONTRACT_STATE_UNSPECIFIED = 0;
+  CONTRACT_STATE_DRAFT = 1;
+  CONTRACT_STATE_ACTIVE = 2;
+  CONTRACT_STATE_SUSPENDED = 3;
+  CONTRACT_STATE_TERMINATED = 4;
+}
+
+
+enum OperationStatus {
+  OPERATION_STATUS_UNSPECIFIED = 0;
+  OPERATION_STATUS_SUCCESS = 1;
+  OPERATION_STATUS_CREATED = 2;
+  OPERATION_STATUS_BAD_REQUEST = 3;
+  OPERATION_STATUS_NOT_FOUND = 4;
+  OPERATION_STATUS_CONFLICT = 5;
+}
+
+service ContractsService {
+  rpc CreateContract(CreateContractRequest) returns (ContractOperationResponse);
+  rpc UpdateContract(UpdateContractRequest) returns (ContractOperationResponse);
+  rpc GetContract(GetContractRequest) returns (GetContractResponse);
+}
+
+
+message CreateContractRequest {
+  string initiator_id = 1;
+  ContractDetails details = 2;
+}
+
+message UpdateContractRequest {
+  string updater_id = 1;
+  string contract_id = 2; 
+  ContractUpdate details = 3;
+}
+
+message GetContractRequest {
+  string contract_id = 1;
+}
+
+
+message ContractOperationResponse {
+  OperationStatus status = 1;
+  string message = 2;
+  Contract contract = 3; 
+}
+
+message GetContractResponse {
+  OperationStatus status = 1;
+  Contract contract = 2;
+}
+
+
+message ContractDetails {
+  string company_name = 1;
+  string contact_email = 2;
+  float monthly_limit = 3; 
+  google.protobuf.Timestamp start_date = 4;
+  google.protobuf.Timestamp end_date = 5;
+}
+
+message ContractUpdate {
+  google.protobuf.StringValue company_name = 1;
+  google.protobuf.StringValue contact_email = 2;
+  google.protobuf.FloatValue monthly_limit = 3;
+  google.protobuf.Timestamp end_date = 4;
+}
+
+message Contract {
+  string id = 1;  
+  string company_name = 2;
+  string contact_email = 3;
+  float monthly_limit = 4;
+  float current_balance = 5;  
+  ContractState state = 6;      
+  google.protobuf.Timestamp start_date = 7;
+  google.protobuf.Timestamp end_date = 8;
+  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Timestamp updated_at = 10;
+}

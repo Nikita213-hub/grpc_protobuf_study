@@ -1,0 +1,15 @@
+
+FROM golang:1.23-alpine
+
+WORKDIR /workspace
+
+
+COPY auth-service/go.mod auth-service/go.mod
+
+RUN cd auth-service && go mod download
+
+
+EXPOSE 44044
+    
+CMD ["go", "run", "./cmd/main.go"]
+# RUN go run ./auth-service/cmd/main.go

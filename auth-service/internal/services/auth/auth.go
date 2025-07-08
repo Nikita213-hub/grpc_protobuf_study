@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/Nikita213-hub/grpc_protobuf_study/auth-service/internal/domain/models"
@@ -54,6 +55,9 @@ func (a *Auth) VerifyToken(ctx context.Context, token string) (*models.UserData,
 	userData, err := a.tokenGetter.GetToken(ctx, token)
 	if err != nil {
 		return nil, err
+	}
+	if userData.ExpiresAt < time.Now().Unix() {
+		return nil, errors.New("token expired")
 	}
 	return userData, nil
 }
