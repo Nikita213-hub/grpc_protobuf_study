@@ -11,12 +11,35 @@ services:
       - REDIS_PASSWORD=${REDIS_PASSWORD:-test_password}
       - REDIS_USER=${REDIS_USER:-default}
       - REDIS_USER_PASSWORD=${REDIS_USER_PASSWORD:-password}
-      - GRPC_PORT=${GRPC_PORT:-44044}
-      - GRPC_TIMEOUT=${GRPC_TIMEOUT:-30}
+      - GRPC_PORT=${GRPC_AUTH_SERVICE_PORT:-44044}
+      - GRPC_TIMEOUT=${GRPC_AUTH_SERVICE_TIMEOUT:-30}
     ports:
       - "44044:44044"
     depends_on:
       - redis
+  contracts:
+    build:
+      context: .
+      dockerfile: contracts-service/Dockerfile
+    volumes:
+      - ./contracts-service:/app/contracts-service
+      - ./go.work:/app/go.work
+    working_dir: /app
+    networks:
+      - travel_local_net
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      GRPC_PORT: ${GRPC_CONTRACTS_SERVICE_PORT:-44044}
+      GRPC_TIMEOUT: ${GRPC_CONTRACTS_SERVICE_TIMEOUT:-30}
+    ports:
+      - "44045:44045"
+    
+    depends_on:
+      - postgres
   redis:
     image: bitnami/redis:latest
     container_name: redis_container
@@ -46,6 +69,50 @@ services:
     restart: unless-stopped
     tty: true
     stdin_open: true
+  postgres:
+    image: postgres:latest
+    container_name: postgres_container
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+      PG_USER: ${PG_USER}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    user: ${PG_USER}
+    networks:
+      - travel_local_net
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data/pgdata
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    command: >
+      postgres -c max_connections=1000
+               -c shared_buffers=256MB
+               -c effective_cache_size=768MB
+               -c maintenance_work_mem=64MB
+               -c checkpoint_completion_target=0.7
+               -c wal_buffers=16MB
+               -c default_statistics_target=100
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+volumes:
+  pgdata:
+    driver: local    
 networks:
   travel_local_net:
     driver: bridge

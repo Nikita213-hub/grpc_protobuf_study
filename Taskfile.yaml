@@ -39,3 +39,63 @@ tasks:
     dir: proto
     cmds: 
       - '{{.BUF}} generate'
+  dev:setup:
+    desc: "Setup development environment"
+    cmds:
+      - task: proto:gen
+      - echo "Development environment ready!"
+
+  dev:up:
+    desc: "Start development environment with hot reload"
+    deps: [ dev:setup ]
+    cmds:
+      - docker-compose -f docker-compose.dev.yaml up
+
+  dev:down:
+    desc: "Stop development environment"
+    cmds:
+      - docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml down
+
+  dev:logs:
+    desc: "Show development logs"
+    cmds:
+      - docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml logs -f
+
+  dev:rebuild:
+    desc: "Rebuild development containers"
+    cmds:
+      - docker-compose -f docker-compose.dev.yaml up --build
+
+  prod:build:
+    desc: "Build production images"
+    deps: [ proto:gen ]
+    cmds:
+      - docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml build
+
+  prod:up:
+    desc: "Start production environment"
+    deps: [ prod:build ]
+    cmds:
+      - docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d
+
+  prod:down:
+    desc: "Stop production environment"
+    cmds:
+      - docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml down
+
+  prod:logs:
+    desc: "Show production logs"
+    cmds:
+      - docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml logs -f
+
+  # Utility tasks
+  clean:
+    desc: "Clean up containers, images, and volumes"
+    cmds:
+      - docker-compose down -v --rmi all
+      - docker system prune -f
+
+  status:
+    desc: "Show status of all containers"
+    cmds:
+      - docker-compose ps

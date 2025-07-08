@@ -1,3 +1,7 @@
+github.com/Nikita213-hub/chat_proto v0.0.0-20250214200958-f612ea44543f h1:r9xD54qMaUhkKqjb+ohMvbe8MkZVaZxm97K0TxRtwBs=
+github.com/Nikita213-hub/chat_proto v0.0.0-20250214200958-f612ea44543f/go.mod h1:G44ZcVIe4AYVzr2vFLCXeH/gzXNOkp1T2MXL7ERoEjI=
+github.com/Nikita213-hub/travel_proto_contracts v0.0.0-20250704130114-b6d6041af6c6 h1:E5ghctQp7JoIVCWL/u9OkcKPQ+/BZBV45nVs+lDiutQ=
+github.com/Nikita213-hub/travel_proto_contracts v0.0.0-20250704130114-b6d6041af6c6/go.mod h1:b8dtKxB0pxJ/SwAEy1Y1U1uzFNidOgrjFifAhmVCi3E=
 github.com/go-logr/logr v1.4.2 h1:6pFjapn8bFcIbiKo3XT4j/BhANplGihG6tvd+8rYgrY=
 github.com/go-logr/logr v1.4.2/go.mod h1:9T104GzyrTigFIr8wt5mBrctHMim0Nb2HLGrmQ40KvY=
 github.com/go-logr/stdr v1.2.2 h1:hSWxHoqTgW2S2qGc0LTAI563KZ5YKYRhT3MFKZMbjag=

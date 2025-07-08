@@ -4,7 +4,7 @@
     WORKDIR /workspace
     
     # Copy go.work and all go.mod/sum files first for better caching
-    COPY go.work go.work.sum ./
+    COPY go.work.auth ./go.work
     COPY go.mod go.sum ./
     COPY auth-service/go.mod auth-service/go.mod
     
