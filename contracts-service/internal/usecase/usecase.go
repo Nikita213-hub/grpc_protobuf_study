@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"errors"
-	"fmt"
 	"regexp"
 	"time"
 
@@ -43,7 +42,6 @@ func (cu *contractsUsecase) CreateContract(contract *models.Contract) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("I am here usecase")
 	return nil
 }
 

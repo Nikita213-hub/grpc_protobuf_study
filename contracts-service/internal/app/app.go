@@ -24,11 +24,11 @@ func NewApp(cfg *config.ContractsServiceCfg) *App {
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", cfg.DbCfg.DbUser, cfg.DbCfg.DbPassword, cfg.DbCfg.DbHost, cfg.DbCfg.DbPort, cfg.DbCfg.DbName)
 	fmt.Println(connStr)
 	db, err := sql.Open("pgx", connStr)
-	if err != nil { //TODO: omg please dont forget to edit that ****
+	if err != nil { //TODO: handle error
 		panic(err)
 	}
 	if err := db.PingContext(context.Background()); err != nil {
-		panic(err) //TODO: omg please dont forget to edit that ****
+		panic(err) //TODO: handle error
 	}
 	fmt.Println("database is reachable")
 	publisher := kafkaContracts.NewKafkaEventPublisher([]string{cfg.KafkaCfg.Brokers}, cfg.KafkaCfg.Topic)

@@ -9,14 +9,13 @@ import (
 )
 
 func main() {
-	fmt.Println("TEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEST123")
 	cfg := config.NewContractsServiceCfg()
 	cfg.Configure()
 	fmt.Println(cfg)
 	app := app.NewApp(cfg)
 	list, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%s", cfg.GrpcSrvCfg.Port))
 	if err != nil {
-		fmt.Println("SOMETHING HAPPEN")
+		fmt.Println(err)
 	}
 	app.GRPCServer.Serve(list)
 }
