@@ -27,8 +27,8 @@ jobs:
 
       - name: Start dependencies
         run: |
-          docker-compose -f docker-compose.yaml up -d postgres redis zookeeper kafka migrate
-          docker-compose -f docker-compose.yaml logs migrate
+          docker compose -f docker-compose.yaml up -d postgres redis zookeeper kafka migrate
+          docker compose -f docker-compose.yaml logs migrate
           sleep 30
 
       - name: List containers
