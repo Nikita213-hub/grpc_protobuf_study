@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: postgres
+      REDIS_PASSWORD: ""
+      KAFKA_BROKERS: kafka:29092
+      KAFKA_CONTRACS_TOPIC: contracts
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Start dependencies
+        run: |
+          docker-compose -f docker-compose.yaml up -d postgres redis zookeeper kafka migrate
+          docker-compose -f docker-compose.yaml logs migrate
+          sleep 30
+
+      - name: List containers
+        run: docker ps -a
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.5'
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Run tests (auth-service)
+        run: |
+          cd auth-service
+          go test ./...
+
+      - name: Run tests (contracts-service)
+        run: |
+          cd contracts-service
+          go test ./...
