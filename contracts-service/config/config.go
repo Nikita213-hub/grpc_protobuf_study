@@ -14,21 +14,21 @@ type ContractsServiceCfg struct {
 }
 
 type GrpcServerCfg struct {
-	Port    string `env:"GRPC_CONTRACTS_SERVICE_PORT" env-required:"true"`
-	TimeOut int    `env:"GRPC_CONTRACTS_SERVIE_TIME_OUT" env-default:"30sec"`
+	Port    string
+	TimeOut int
 }
 
 type DBCfg struct {
-	DbHost     string `env:"DB_HOST"`
-	DbPort     string `env:"DB_PORT"`
-	DbUser     string `env:"DB_USER"`
-	DbName     string `env:"DB_NAME"`
-	DbPassword string `env:"DB_PASSWORD"`
+	DbHost     string
+	DbPort     string
+	DbUser     string
+	DbName     string
+	DbPassword string
 }
 
 type KafkaCfg struct {
-	Brokers string `env:"KAFKA_BROKERS"`
-	Topic   string `env:"KAFKA_CONTRACS_TOPIC"`
+	Brokers string
+	Topic   string
 }
 
 func NewContractsServiceCfg() *ContractsServiceCfg {
