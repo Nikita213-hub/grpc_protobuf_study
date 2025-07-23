@@ -57,7 +57,7 @@ services:
       GOOSE_DBSTRING: postgres://${DB_USER}:${DB_PASSWORD}@postgres:${DB_PORT}/${DB_NAME}
     depends_on:
       - postgres
-    command: up
+    command: sleep 30 | up
   redis:
     image: bitnami/redis:latest
     container_name: redis_container
