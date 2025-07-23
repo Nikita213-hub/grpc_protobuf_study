@@ -92,8 +92,8 @@ services:
     container_name: postgres_container
     environment:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
-      - POSTGRES_USER=${DB_USER} 
+      - POSTGRES_DATABASE=${DB_NAME}
+      - PG_USER=${DB_USER} 
       - PGDATA=/var/lib/postgresql/data/pgdata
     networks:
       - travel_local_net
