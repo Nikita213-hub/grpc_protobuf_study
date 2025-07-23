@@ -44,6 +44,7 @@ jobs:
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
           echo "PG_USER=${{ secrets.PG_USER }}" >> .env
+          echo "POSTGRES_DATABASE=${{ secrets.DB_NAME }}" >> .env
           
           echo "GRPC_AUTH_SERVICE_PORT=${{ secrets.GRPC_AUTH_SERVICE_PORT }}" >> .env
           echo "GRPC_AUTH_SERVICE_TIMEOUT=${{ secrets.GRPC_AUTH_SERVICE_TIMEOUT }}" >> .env
