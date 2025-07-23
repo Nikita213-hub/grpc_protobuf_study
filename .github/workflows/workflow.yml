@@ -21,12 +21,46 @@ jobs:
       REDIS_PASSWORD: ""
       KAFKA_BROKERS: kafka:29092
       KAFKA_CONTRACS_TOPIC: contracts
-      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_CLIENT_PORT: 2181 
       ZOOKEEPER_TICK_TIME: 2000
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set envs
+        run:  |
+          touch .env
+
+          echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> .env
+          echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> .env
+          echo "REDIS_USER=${{ secrets.REDIS_USER }}" >> .env
+          echo "REDIS_USER_PASSWORD=${{ secrets.REDIS_USER_PASSWORD }}" >> .env
+          echo "REDIS_DB=${{ secrets.REDIS_DB }}" >> .env
+          
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "PG_USER=${{ secrets.PG_USER }}" >> .env
+          
+          echo "GRPC_AUTH_SERVICE_PORT=${{ secrets.GRPC_AUTH_SERVICE_PORT }}" >> .env
+          echo "GRPC_AUTH_SERVICE_TIMEOUT=${{ secrets.GRPC_AUTH_SERVICE_TIMEOUT }}" >> .env
+          echo "GRPC_CONTRACTS_SERVICE_PORT=${{ secrets.GRPC_CONTRACTS_SERVICE_PORT }}" >> .env
+          echo "GRPC_CONTRACTS_SERVICE_TIMEOUT=${{ secrets.GRPC_CONTRACTS_SERVICE_TIMEOUT }}" >> .env
+          
+          echo "ZOOKEEPER_CLIENT_PORT=${{ secrets.ZOOKEEPER_CLIENT_PORT }}" >> .env
+          echo "ZOOKEEPER_TICK_TIME=${{ secrets.ZOOKEEPER_TICK_TIME }}" >> .env
+          
+          echo "KAFKA_BROKER_ID=${{ secrets.KAFKA_BROKER_ID }}" >> .env
+          echo "KAFKA_ZOOKEEPER_CONNECT=${{ secrets.KAFKA_ZOOKEEPER_CONNECT }}" >> .env
+          echo "KAFKA_ADVERTISED_LISTENERS=${{ secrets.KAFKA_ADVERTISED_LISTENERS }}" >> .env
+          echo "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=${{ secrets.KAFKA_LISTENER_SECURITY_PROTOCOL_MAP }}" >> .env
+          echo "KAFKA_INTER_BROKER_LISTENER_NAME=${{ secrets.KAFKA_INTER_BROKER_LISTENER_NAME }}" >> .env
+          echo "KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=${{ secrets.KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR }}" >> .env
+          echo "KAFKA_BROKERS=${{ secrets.KAFKA_BROKERS }}" >> .env
+          echo "KAFKA_CONTRACS_TOPIC=${{ secrets.KAFKA_CONTRACS_TOPIC }}" >> .env
 
       - name: Start dependencies
         run: |
