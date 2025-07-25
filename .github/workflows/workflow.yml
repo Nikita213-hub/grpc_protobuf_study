@@ -12,18 +12,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    env:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_NAME: postgres
-      REDIS_PASSWORD: ""
-      KAFKA_BROKERS: kafka:29092
-      KAFKA_CONTRACS_TOPIC: contracts
-      ZOOKEEPER_CLIENT_PORT: 2181 
-      ZOOKEEPER_TICK_TIME: 2000
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
