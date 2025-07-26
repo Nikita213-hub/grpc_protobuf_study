@@ -14,7 +14,7 @@ type App struct {
 }
 
 func New(port string, redisCfg *config.RedisConfig) *App {
-	strg, err := redisstore.NewRedisTokenStorage("redis:"+redisCfg.Port, redisCfg.UserPassword, redisCfg.DB)
+	strg, err := redisstore.NewRedisTokenStorage(redisCfg.Address, redisCfg.UserPassword, redisCfg.DB)
 	if err != nil {
 		panic(err)
 	}

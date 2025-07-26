@@ -11,9 +11,8 @@ import (
 )
 
 func main() {
-	fmt.Println("HELLO YOOO")
 	cfg := config.NewAuthServiceCfg()
-	err := cfg.Configure("cmd/local.yaml")
+	err := cfg.Configure()
 	if err != nil {
 		panic(err)
 	}
