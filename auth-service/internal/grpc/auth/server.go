@@ -2,60 +2,48 @@ package auth
 
 import (
 	"context"
-	"errors"
 	"net/mail"
 
 	"github.com/Nikita213-hub/grpc_protobuf_study/auth-service/internal/domain/models"
-	"github.com/Nikita213-hub/grpc_protobuf_study/auth-service/internal/validators"
-	authV1 "github.com/Nikita213-hub/travel_proto_contracts/pkg/proto/auth/v1"
+	authV2 "github.com/Nikita213-hub/travel_proto_contracts/pkg/proto/auth/v2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
 type Auth interface {
-	GenToken(ctx context.Context, userEmail, userId string) (*models.Token, error)
-	VerifyToken(ctx context.Context, token string) (*models.UserData, error)
+	StartLogin(ctx context.Context, userEmail string) error
+	VerifyCode(ctx context.Context, userEmail, code string) (*models.Session, error)
 }
 
 type Server struct {
-	authV1.UnimplementedAuthServiceServer
+	authV2.UnimplementedAuthServiceServer
 	auth Auth
 }
 
 func Register(gRPC *grpc.Server, auth Auth) {
-	authV1.RegisterAuthServiceServer(gRPC, &Server{auth: auth})
+	authV2.RegisterAuthServiceServer(gRPC, &Server{auth: auth})
 	reflection.Register(gRPC) // TODO: optional
 }
 
-func (s *Server) GenToken(ctx context.Context, req *authV1.GenTokenReq) (*authV1.GenTokenRes, error) {
-	userEmail, userId := req.GetUserEmail(), req.GetUserId()
+func (s *Server) StartLogin(ctx context.Context, req *authV2.LoginRequest) (*authV2.LoginResponse, error) {
+	userEmail := req.GetEmail()
 	_, err := mail.ParseAddress(userEmail)
 	if err != nil {
 		return nil, err
 	}
-	isValid := validators.IsUserIdValid(userId)
-	if !isValid {
-		return nil, errors.New("error: invalid user id")
-	}
-	token, err := s.auth.GenToken(ctx, userEmail, userId)
+	err = s.auth.StartLogin(ctx, userEmail)
 	if err != nil {
 		return nil, err
 	}
-	return &authV1.GenTokenRes{
-		Token: token.Token,
-		Exp:   token.Exp,
+	return &authV2.LoginResponse{
+		Message: "Code was sent to ur email",
 	}, nil
 }
 
-func (s *Server) VerifyToken(ctx context.Context, req *authV1.VerifyTokenReq) (*authV1.VerifyTokenRes, error) {
-	toekn := req.GetToken()
-	userData, err := s.auth.VerifyToken(ctx, toekn)
+func (s *Server) VerifyCode(ctx context.Context, req *authV2.VerifyCodeRequest) (*authV2.VerifyCodeResponse, error) {
+	session, err := s.auth.VerifyCode(ctx, req.Email, req.Code)
 	if err != nil {
 		return nil, err
 	}
-	return &authV1.VerifyTokenRes{
-		UserId:    userData.UserId,
-		UserEmail: userData.UserEmail,
-		Exp:       userData.ExpiresAt,
-	}, nil
+	return &authV2.VerifyCodeResponse{SessionId: session.ID}, nil
 }
