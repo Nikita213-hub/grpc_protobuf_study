@@ -76,6 +76,14 @@ func (a *Auth) VerifyCode(ctx context.Context, userEmail, code string) (*models.
 	return session, nil
 }
 
+func (a *Auth) GetSession(ctx context.Context, sessionId string) (*models.Session, error) {
+	session, err := a.sessionRepo.GetSession(ctx, sessionId)
+	if err != nil {
+		return nil, err
+	}
+	return session, nil
+}
+
 func generateSessionID() string {
 	return uuid.New().String()
 }

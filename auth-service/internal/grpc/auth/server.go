@@ -13,6 +13,7 @@ import (
 type Auth interface {
 	StartLogin(ctx context.Context, userEmail string) error
 	VerifyCode(ctx context.Context, userEmail, code string) (*models.Session, error)
+	GetSession(ctx context.Context, sessionId string) (*models.Session, error)
 }
 
 type Server struct {
@@ -46,4 +47,17 @@ func (s *Server) VerifyCode(ctx context.Context, req *authV2.VerifyCodeRequest) 
 		return nil, err
 	}
 	return &authV2.VerifyCodeResponse{SessionId: session.ID}, nil
+}
+
+func (s *Server) GetSession(ctx context.Context, req *authV2.SessionRequest) (*authV2.Session, error) {
+	sessionId := req.GetSessionId()
+	session, err := s.auth.GetSession(ctx, sessionId)
+	if err != nil {
+		return nil, err
+	}
+	return &authV2.Session{
+		Id:        session.ID,
+		Email:     session.Email,
+		ExpiresAt: session.ExpiresAt,
+	}, nil
 }
