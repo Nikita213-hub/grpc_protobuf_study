@@ -79,3 +79,8 @@ jobs:
         run: |
           cd contracts-service
           go test ./...
+
+      - name: Run tests (api-gateway)
+        run: |
+          cd api-gateway
+          go test ./...

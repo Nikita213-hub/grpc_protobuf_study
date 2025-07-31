@@ -1,101 +1,28 @@
 version: '3'
 
-vars:
-  BUF_VER: 'v1.55.0'
-  PROTOC_GEN_GO_VER: 'v1.36.6'
-  PROTOC_GEN_GO_GRPC_VER: 'v1.5.1'
-
-  BIN_DIR: '{{.ROOT_DIR}}/bin'
-  BUF: '{{.BIN_DIR}}/buf'
-  PROTOC_GEN_GO: '{{.BIN_DIR}}/protoc-gen-go'
-  PROTOC_GEN_GO_GRPC: '{{.BIN_DIR}}/protoc-gen-go-grpc'
 tasks:
-  install-buf:
-    desc: "Installs buf locally"
+  local:up:
+    desc: "Run dependencies only"
     cmds:
-      - |
-        mkdir -p {{.BIN_DIR}}
-        [ -f {{.BUF}} ] || {
-          echo '---Installing buf {{.BUF_VER}}...---'
-          GOBIN={{.BIN_DIR}} go install github.com/bufbuild/buf/cmd/buf@{{.BUF_VER}}
-        }
-    status:
-      - test -x {{.BUF}}
-  proto:install-plugins:
-    desc: "Installs protoc plugins in {{.BIN_DIR}}"
+      - docker compose -f docker-compose.yaml up -d postgres redis zookeeper kafka
+      - sleep 5
+      - docker compose -f docker-compose.yaml up -d migrate
+  local:logs:
+    desc: "Show logs"
     cmds:
-      - |
-        [ -f {{.PROTOC_GEN_GO}}] || {
-          echo '---Installing protoc-gen-go...---'
-          GOBIN={{.BIN_DIR}} go install google.golang.org/protobuf/cmd/protoc-gen-go@{{.PROTOC_GEN_GO_VER}}
-        }
-        [ -f {{.PROTOC_GEN_GO_GRPC}}] || {
-          echo '---Installing protoc-gen-go-grpc...---'
-          GOBIN={{.BIN_DIR}} go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@{{.PROTOC_GEN_GO_GRPC_VER}}
-        }
-  proto:gen:
-    deps: [ install-buf, proto:install-plugins ]
-    desc: "Code gen"
-    dir: proto
+      - docker compose -f docker-compose.yaml logs
+  local:down:
+    desc: "Shut down deps"
     cmds: 
-      - '{{.BUF}} generate'
-  dev:setup:
-    desc: "Setup development environment"
-    cmds:
-      - task: proto:gen
-      - echo "Development environment ready!"
+      - docker compose -f docker-compose.yaml down
 
-  dev:up:
-    desc: "Start development environment with hot reload"
-    deps: [ dev:setup ]
-    cmds:
-      - docker-compose -f docker-compose.dev.yaml up
-
-  dev:down:
-    desc: "Stop development environment"
-    cmds:
-      - docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml down
-
-  dev:logs:
-    desc: "Show development logs"
-    cmds:
-      - docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml logs -f
-
-  dev:rebuild:
-    desc: "Rebuild development containers"
-    cmds:
-      - docker-compose -f docker-compose.dev.yaml up --build
-
-  prod:build:
-    desc: "Build production images"
-    deps: [ proto:gen ]
-    cmds:
-      - docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml build
-
-  prod:up:
-    desc: "Start production environment"
-    deps: [ prod:build ]
-    cmds:
-      - docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d
-
-  prod:down:
-    desc: "Stop production environment"
-    cmds:
-      - docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml down
-
-  prod:logs:
-    desc: "Show production logs"
-    cmds:
-      - docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml logs -f
-
-  # Utility tasks
   clean:
     desc: "Clean up containers, images, and volumes"
     cmds:
-      - docker-compose down -v --rmi all
+      - docker compose down -v --rmi all
       - docker system prune -f
 
   status:
     desc: "Show status of all containers"
     cmds:
-      - docker-compose ps
+      - docker compose ps

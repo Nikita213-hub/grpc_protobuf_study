@@ -1,12 +1,7 @@
 package validators
 
-func IsUserIdValid(userId string) bool {
-	allowedUserIds := []string{"1", "2", "3"}
-	isValid := false
-	for _, v := range allowedUserIds {
-		if userId == v {
-			isValid = true
-		}
-	}
-	return isValid
+// Its a temp approach i will add more comprehensive check + user storage later
+func CheckPassword(password string) bool {
+	secretPassword := "secret_password"
+	return password == secretPassword
 }
