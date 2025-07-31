@@ -1,8 +1,11 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"strconv"
+
+	"github.com/joho/godotenv"
 )
 
 var DEFAULT_GRPC_TIME_OUT = 30
@@ -40,7 +43,11 @@ func (csc *ContractsServiceCfg) Configure() {
 }
 
 func mustLoadCfgFromEnv(cfg *ContractsServiceCfg) {
-
+	if os.Getenv("ENV") == "local" {
+		if err := godotenv.Load(".env"); err != nil {
+			fmt.Printf(".env file not found")
+		}
+	}
 	cfg.DbCfg.DbHost = os.Getenv("DB_HOST")
 	cfg.DbCfg.DbPort = os.Getenv("DB_PORT")
 	cfg.DbCfg.DbUser = os.Getenv("DB_USER")
