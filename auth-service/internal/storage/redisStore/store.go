@@ -2,6 +2,7 @@ package redisstore
 
 import (
 	"context"
+	"errors"
 	"strconv"
 	"time"
 
@@ -45,7 +46,7 @@ func (r *RedisStoarage) AddSession(ctx context.Context, session *models.Session)
 	if _, err := r.client.Pipelined(func(rdb redis.Pipeliner) error {
 		rdb.HSet(session.ID, "user_email", session.Email)
 		rdb.HSet(session.ID, "expires_at", session.ExpiresAt)
-		rdb.Pipeline().Expire(session.ID, time.Duration(session.ExpiresAt-time.Now().Unix()))
+		rdb.Pipeline().Expire(session.ID, time.Duration(session.ExpiresAt-time.Now().Unix())*time.Second)
 		return nil
 	}); err != nil {
 		return err
@@ -57,6 +58,9 @@ func (r *RedisStoarage) GetSession(ctx context.Context, sessionID string) (*mode
 	result, err := r.client.HGetAll(sessionID).Result()
 	if err != nil {
 		return nil, err
+	}
+	if len(result) == 0 {
+		return nil, errors.New("key not found")
 	}
 	return &models.Session{
 		ID:        sessionID,

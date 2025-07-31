@@ -11,8 +11,6 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-//TODO: distribute into different files, Add other endpoints like /contracts, use env for client address
-
 type AuthMiddleware struct {
 	authClient authV2.AuthServiceClient
 }
@@ -79,10 +77,10 @@ func (am *AuthMiddleware) Middleware(next http.Handler) http.Handler {
 			return
 		}
 
-		_, err := am.authClient.GetSession(r.Context(), &authV2.SessionRequest{
+		session, err := am.authClient.GetSession(r.Context(), &authV2.SessionRequest{
 			SessionId: sessionID,
 		})
-
+		fmt.Println(session)
 		if err != nil {
 			fmt.Println(err)
 			http.Error(w, "Invalid session", http.StatusUnauthorized)
