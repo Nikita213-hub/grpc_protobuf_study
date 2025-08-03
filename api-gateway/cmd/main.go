@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/Nikita213-hub/grpc_protobuf_study/api-gateway/internal/handlers"
 	authV2 "github.com/Nikita213-hub/travel_proto_contracts/pkg/proto/auth/v2"
@@ -71,12 +73,21 @@ func main() {
 
 func (am *AuthMiddleware) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		sessionID := r.Header.Get("Authorization")
-		if sessionID == "" {
+		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" {
 			http.Error(w, "Authorization header required", http.StatusUnauthorized)
 			return
 		}
 
+		if !strings.HasPrefix(authHeader, "Bearer ") {
+			http.Error(w, "Missing or invalid Authorization header", http.StatusUnauthorized)
+			return
+		}
+		sessionID := strings.TrimPrefix(authHeader, "Bearer ")
+		if sessionID == "" {
+			http.Error(w, "Empty session ID", http.StatusUnauthorized)
+			return
+		}
 		session, err := am.authClient.GetSession(r.Context(), &authV2.SessionRequest{
 			SessionId: sessionID,
 		})
@@ -86,7 +97,8 @@ func (am *AuthMiddleware) Middleware(next http.Handler) http.Handler {
 			http.Error(w, "Invalid session", http.StatusUnauthorized)
 			return
 		}
-
-		next.ServeHTTP(w, r)
+		ctx := context.WithValue(r.Context(), "session", session)
+		ctx = context.WithValue(ctx, "userEmail", session.Email)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
