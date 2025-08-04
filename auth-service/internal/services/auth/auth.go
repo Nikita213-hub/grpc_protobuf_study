@@ -2,7 +2,10 @@ package auth
 
 import (
 	"context"
+	"crypto/rand"
 	"errors"
+	"fmt"
+	"math/big"
 	"time"
 
 	"github.com/Nikita213-hub/grpc_protobuf_study/auth-service/internal/domain/models"
@@ -44,7 +47,8 @@ type VCodeRepository interface {
 // TODO: implement
 
 func (a *Auth) StartLogin(ctx context.Context, userEmail string) error {
-	code := "1111" //TODO: add random code impl
+	code := generateVCode()
+	fmt.Println("code: ", code) //TODO: remove and implement mail sending
 	err := a.vcodeRepo.SaveVCode(ctx, userEmail, code)
 	if err != nil {
 		return err
@@ -63,7 +67,7 @@ func (a *Auth) VerifyCode(ctx context.Context, userEmail, code string) (*models.
 	session := &models.Session{
 		ID:        generateSessionID(),
 		Email:     userEmail,
-		ExpiresAt: time.Now().Add(30 * 24 * time.Hour).Unix(),
+		ExpiresAt: time.Now().Add(2 * time.Hour).Unix(),
 	}
 	err = a.sessionRepo.AddSession(ctx, session)
 	if err != nil {
@@ -81,9 +85,24 @@ func (a *Auth) GetSession(ctx context.Context, sessionId string) (*models.Sessio
 	if err != nil {
 		return nil, err
 	}
+
+	if time.Now().Unix() > session.ExpiresAt {
+		a.sessionRepo.RemoveSession(ctx, sessionId)
+		return nil, errors.New("session expired")
+	}
+
 	return session, nil
 }
 
 func generateSessionID() string {
 	return uuid.New().String()
+}
+
+func generateVCode() string {
+	max := big.NewInt(1000000)
+	n, err := rand.Int(rand.Reader, max)
+	if err != nil {
+		panic("crypto/rand failed: " + err.Error())
+	}
+	return fmt.Sprintf("%06d", n.Int64())
 }
