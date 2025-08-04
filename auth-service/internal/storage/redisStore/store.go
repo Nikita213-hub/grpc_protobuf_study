@@ -10,11 +10,11 @@ import (
 	"github.com/go-redis/redis"
 )
 
-type RedisStoarage struct {
+type RedisStorage struct {
 	client *redis.Client
 }
 
-func NewRedisTokenStorage(addr, password string, db int) (*RedisStoarage, error) {
+func NewRedisTokenStorage(addr, password string, db int) (*RedisStorage, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr:     addr,
 		Password: password,
@@ -25,24 +25,24 @@ func NewRedisTokenStorage(addr, password string, db int) (*RedisStoarage, error)
 		return nil, err
 	}
 
-	return &RedisStoarage{
+	return &RedisStorage{
 		client: client,
 	}, nil
 }
 
-func (r *RedisStoarage) SaveVCode(ctx context.Context, email, code string) error {
+func (r *RedisStorage) SaveVCode(ctx context.Context, email, code string) error {
 	return r.client.Set(email, code, 5*time.Minute).Err()
 }
 
-func (r *RedisStoarage) GetVCode(ctx context.Context, email string) (string, error) {
+func (r *RedisStorage) GetVCode(ctx context.Context, email string) (string, error) {
 	return r.client.Get(email).Result()
 }
 
-func (r *RedisStoarage) RemoveVCode(ctx context.Context, email string) error {
+func (r *RedisStorage) RemoveVCode(ctx context.Context, email string) error {
 	return r.client.Del(email).Err()
 }
 
-func (r *RedisStoarage) AddSession(ctx context.Context, session *models.Session) error {
+func (r *RedisStorage) AddSession(ctx context.Context, session *models.Session) error {
 	if _, err := r.client.Pipelined(func(rdb redis.Pipeliner) error {
 		rdb.HSet(session.ID, "user_email", session.Email)
 		rdb.HSet(session.ID, "expires_at", session.ExpiresAt)
@@ -54,7 +54,7 @@ func (r *RedisStoarage) AddSession(ctx context.Context, session *models.Session)
 	return nil
 }
 
-func (r *RedisStoarage) GetSession(ctx context.Context, sessionID string) (*models.Session, error) {
+func (r *RedisStorage) GetSession(ctx context.Context, sessionID string) (*models.Session, error) {
 	result, err := r.client.HGetAll(sessionID).Result()
 	if err != nil {
 		return nil, err
@@ -69,7 +69,7 @@ func (r *RedisStoarage) GetSession(ctx context.Context, sessionID string) (*mode
 	}, nil
 }
 
-func (r *RedisStoarage) RemoveSession(ctx context.Context, sessionId string) error {
+func (r *RedisStorage) RemoveSession(ctx context.Context, sessionId string) error {
 	return r.client.Del(sessionId).Err()
 }
 
