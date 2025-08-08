@@ -5,20 +5,23 @@ import (
 	"net"
 
 	authgrpc "github.com/Nikita213-hub/grpc_protobuf_study/auth-service/internal/grpc/auth"
+	"github.com/Nikita213-hub/grpc_protobuf_study/auth-service/internal/logger"
 	"google.golang.org/grpc"
 )
 
 type App struct {
 	gRPCserver *grpc.Server
 	port       string
+	logger     *logger.Logger
 }
 
-func NewApp(port string, auth authgrpc.Auth) *App {
+func NewApp(port string, auth authgrpc.Auth, log *logger.Logger) *App {
 	server := grpc.NewServer()
-	authgrpc.Register(server, auth)
+	authgrpc.Register(server, auth, log)
 	return &App{
 		gRPCserver: server,
 		port:       port,
+		logger:     log,
 	}
 }
 
@@ -27,7 +30,7 @@ func (app *App) Run() error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("Running grpc auth-service server")
+	app.logger.Info("grpc_server_starting", "port", app.port)
 	err = app.gRPCserver.Serve(l)
 	if err != nil {
 		return err
