@@ -4,7 +4,7 @@ tasks:
   local:up:
     desc: "Run dependencies only"
     cmds:
-      - docker compose -f docker-compose.yaml up -d postgres redis zookeeper kafka
+      - docker compose -f docker-compose.yaml up -d postgres redis zookeeper kafka jaeger otel-collector grafana loki
       - sleep 5
       - docker compose -f docker-compose.yaml up -d migrate
   local:logs:

@@ -34,15 +34,15 @@ func (s *Server) StartLogin(ctx context.Context, req *authV2.LoginRequest) (*aut
 	userEmail := req.GetEmail()
 	_, err := mail.ParseAddress(userEmail)
 	if err != nil {
-		s.logger.Warn("start_login_invalid_input")
+		s.logger.WarnContext(ctx, "start_login_invalid_input")
 		return nil, status.Error(codes.InvalidArgument, "invalid input")
 	}
 	err = s.auth.StartLogin(ctx, userEmail)
 	if err != nil {
-		s.logger.Error("start_login_failed", "error", err.Error())
+		s.logger.ErrorContext(ctx, "start_login_failed", "error", err.Error())
 		return nil, convertServiceError(err)
 	}
-	s.logger.Info("start_login_success", "user_email", userEmail)
+	s.logger.InfoContext(ctx, "start_login_success", "user_email", userEmail)
 	return &authV2.LoginResponse{
 		Message: "Code was sent to ur email",
 	}, nil
@@ -53,21 +53,21 @@ func (s *Server) VerifyCode(ctx context.Context, req *authV2.VerifyCodeRequest) 
 	code := req.GetCode()
 
 	if err := validateEmail(email); err != nil {
-		s.logger.Warn("verify_code_invalid_input")
+		s.logger.WarnContext(ctx, "verify_code_invalid_input")
 		return nil, status.Error(codes.InvalidArgument, "invalid input")
 	}
 
 	if code == "" || len(code) != 6 {
-		s.logger.Warn("verify_code_invalid_input")
+		s.logger.WarnContext(ctx, "verify_code_invalid_input")
 		return nil, status.Error(codes.InvalidArgument, "invalid input")
 	}
 
 	session, err := s.auth.VerifyCode(ctx, email, code)
 	if err != nil {
-		s.logger.Warn("verify_code_failed", "error", err.Error())
+		s.logger.WarnContext(ctx, "verify_code_failed", "error", err.Error())
 		return nil, convertServiceError(err)
 	}
-	s.logger.Info("verify_code_success", "user_email", email, "session_id", session.ID)
+	s.logger.InfoContext(ctx, "verify_code_success", "user_email", email, "session_id", session.ID)
 	return &authV2.VerifyCodeResponse{SessionId: session.ID}, nil
 }
 
@@ -75,10 +75,10 @@ func (s *Server) GetSession(ctx context.Context, req *authV2.SessionRequest) (*a
 	sessionId := req.GetSessionId()
 	session, err := s.auth.GetSession(ctx, sessionId)
 	if err != nil {
-		s.logger.Warn("get_session_failed", "error", err.Error())
+		s.logger.WarnContext(ctx, "get_session_failed", "error", err.Error())
 		return nil, convertServiceError(err)
 	}
-	s.logger.Info("get_session_success", "user_email", session.Email)
+	s.logger.InfoContext(ctx, "get_session_success", "user_email", session.Email)
 	return &authV2.Session{
 		Id:        session.ID,
 		Email:     session.Email,

@@ -6,6 +6,7 @@ import (
 
 	authgrpc "github.com/Nikita213-hub/grpc_protobuf_study/auth-service/internal/grpc/auth"
 	"github.com/Nikita213-hub/grpc_protobuf_study/auth-service/internal/logger"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 )
 
@@ -16,7 +17,9 @@ type App struct {
 }
 
 func NewApp(port string, auth authgrpc.Auth, log *logger.Logger) *App {
-	server := grpc.NewServer()
+	server := grpc.NewServer(
+		grpc.StatsHandler(otelgrpc.NewServerHandler()),
+	)
 	authgrpc.Register(server, auth, log)
 	return &App{
 		gRPCserver: server,
