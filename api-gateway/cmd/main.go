@@ -7,8 +7,10 @@ import (
 	"strings"
 
 	"github.com/Nikita213-hub/grpc_protobuf_study/api-gateway/internal/handlers"
+	obs "github.com/Nikita213-hub/grpc_protobuf_study/shared/observability"
 	authV2 "github.com/Nikita213-hub/travel_proto_contracts/pkg/proto/auth/v2"
 	contractsV1 "github.com/Nikita213-hub/travel_proto_contracts/pkg/proto/contract"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -24,10 +26,22 @@ func NewAuthMiddleware(authClient authV2.AuthServiceClient) *AuthMiddleware {
 }
 
 func main() {
+	ctx := context.Background()
+	telemetry, _ := obs.New(ctx, obs.Config{
+		ServiceName:    "api-gateway",
+		ServiceVersion: "v0.1.0",
+		Environment:    "local",
+		OtlpEndpoint:   "0.0.0.0:4317",
+		SampleRatio:    1.0,
+	})
+	shutdown := telemetry.Shutdown
+
+	defer shutdown(ctx)
 
 	authConn, err := grpc.NewClient(
 		"localhost:44044",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
 	)
 
 	if err != nil {
@@ -37,6 +51,7 @@ func main() {
 	contractsConn, err := grpc.NewClient(
 		"localhost:44045",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
 	)
 
 	if err != nil {
@@ -64,7 +79,9 @@ func main() {
 	mux.Handle("POST /contracts", authMiddleware.Middleware(http.HandlerFunc(handlers.CreateContractHandler)))
 	mux.Handle("PATCH /contracts/{id}", authMiddleware.Middleware(http.HandlerFunc(handlers.UpdateContractHandler)))
 	mux.Handle("GET /contracts/{id}", authMiddleware.Middleware(http.HandlerFunc(handlers.GetContractHandler)))
-	err = http.ListenAndServe("localhost:8080", mux)
+	// Wrap HTTP server with otelhttp via shared helper
+	wrapped := obs.WrapHTTP(mux, "http-server").(http.Handler)
+	err = http.ListenAndServe("localhost:8080", wrapped)
 	if err != nil {
 		fmt.Println(err)
 	}

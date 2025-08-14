@@ -13,6 +13,7 @@ type AuthServiceConfig struct {
 	StrgUrl  string
 	GrpcCfg  GRPCServerConfig
 	RedisCfg RedisConfig
+	OtelCfg  OtelConfig
 }
 
 type GRPCServerConfig struct {
@@ -24,6 +25,11 @@ type RedisConfig struct {
 	Address      string
 	UserPassword string
 	DB           int
+}
+
+type OtelConfig struct {
+	Endpoint    string
+	SampleRatio float64
 }
 
 func NewAuthServiceCfg() *AuthServiceConfig {
@@ -68,6 +74,17 @@ func (cfg *AuthServiceConfig) Configure() error {
 		UserPassword: redisPassword,
 		DB:           db,
 	}
+
+	otelEndpoint := getEnv("OTEL_EXPORTER_OTLP_ENDPOINT", "0.0.0.0:4317")
+	otelSampleRatio, err := strconv.ParseFloat(getEnv("OTEL_TRACES_SAMPLER_ARG", "1.0"), 64)
+	if err != nil {
+		return invalidEnvError("OTEL_TRACES_SAMPLER_ARG", "must be float")
+	}
+	cfg.OtelCfg = OtelConfig{
+		Endpoint:    otelEndpoint,
+		SampleRatio: otelSampleRatio,
+	}
+
 	return nil
 }
 

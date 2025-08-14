@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/Nikita213-hub/grpc_protobuf_study/auth-service/internal/domain/models"
+	"github.com/Nikita213-hub/grpc_protobuf_study/auth-service/internal/storage"
 	"github.com/google/uuid"
 )
 
@@ -47,22 +48,28 @@ type VCodeRepository interface {
 // TODO: implement
 
 func (a *Auth) StartLogin(ctx context.Context, userEmail string) error {
+	op := "auth.start_login"
+
 	code := generateVCode()
 	fmt.Println("code: ", code) //TODO: remove and implement mail sending
 	err := a.vcodeRepo.SaveVCode(ctx, userEmail, code)
 	if err != nil {
-		return err
+		return fmt.Errorf("%s: %w", op, err)
 	}
 	return nil
 }
 
 func (a *Auth) VerifyCode(ctx context.Context, userEmail, code string) (*models.Session, error) {
+	op := "auth.verify_code"
 	storedCode, err := a.vcodeRepo.GetVCode(ctx, userEmail)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, storage.ErrKeyNotFound) {
+			return nil, fmt.Errorf("%s: %w", op, ErrCodeExpired)
+		}
+		return nil, fmt.Errorf("%s: code lookup failed: %w", op, err)
 	}
 	if code != storedCode {
-		return nil, errors.New("incorrect code")
+		return nil, fmt.Errorf("%s: %w", op, ErrIncorrectCode)
 	}
 	session := &models.Session{
 		ID:        generateSessionID(),
@@ -71,24 +78,26 @@ func (a *Auth) VerifyCode(ctx context.Context, userEmail, code string) (*models.
 	}
 	err = a.sessionRepo.AddSession(ctx, session)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%s: %w", op, ErrSessionCreateFailed)
 	}
-	err = a.vcodeRepo.RemoveVCode(ctx, userEmail)
-	if err != nil {
-		return nil, err
-	}
+	_ = a.vcodeRepo.RemoveVCode(ctx, userEmail)
+
 	return session, nil
 }
 
 func (a *Auth) GetSession(ctx context.Context, sessionId string) (*models.Session, error) {
+	op := "auth.get_session"
 	session, err := a.sessionRepo.GetSession(ctx, sessionId)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, storage.ErrKeyNotFound) {
+			return nil, fmt.Errorf("%s: %w", op, ErrSessionNotFound)
+		}
+		return nil, fmt.Errorf("%s: session lookup failed: %w", op, err)
 	}
 
 	if time.Now().Unix() > session.ExpiresAt {
-		a.sessionRepo.RemoveSession(ctx, sessionId)
-		return nil, errors.New("session expired")
+		_ = a.sessionRepo.RemoveSession(ctx, sessionId)
+		return nil, fmt.Errorf("%s: %w", op, ErrSessionExpired)
 	}
 
 	return session, nil
@@ -100,9 +109,6 @@ func generateSessionID() string {
 
 func generateVCode() string {
 	max := big.NewInt(1000000)
-	n, err := rand.Int(rand.Reader, max)
-	if err != nil {
-		panic("crypto/rand failed: " + err.Error())
-	}
+	n, _ := rand.Int(rand.Reader, max)
 	return fmt.Sprintf("%06d", n.Int64())
 }
