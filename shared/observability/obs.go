@@ -55,7 +55,7 @@ func New(ctx context.Context, cfg Config) (*Telemetry, error) {
 	// Setup tracing
 	endpoint := cfg.OtlpEndpoint
 	if endpoint == "" {
-		endpoint = "http://otel-collector:4317"
+		endpoint = "otel-collector:4317"
 	}
 	traceExporter, err := otlptracegrpc.New(ctx,
 		otlptracegrpc.WithEndpoint(endpoint),
@@ -80,7 +80,8 @@ func New(ctx context.Context, cfg Config) (*Telemetry, error) {
 	// Setup logging
 	logExporter, _ := otlploggrpc.New(
 		ctx,
-		otlploggrpc.WithEndpoint(endpoint),
+		otlploggrpc.WithEndpoint(cfg.OtlpEndpoint),
+		otlploggrpc.WithInsecure(),
 	)
 	logProvider := log.NewLoggerProvider(
 		log.WithResource(res),
