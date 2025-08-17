@@ -80,7 +80,7 @@ func New(ctx context.Context, cfg Config) (*Telemetry, error) {
 	// Setup logging
 	logExporter, _ := otlploggrpc.New(
 		ctx,
-		otlploggrpc.WithEndpoint("0.0.0.0:4317"),
+		otlploggrpc.WithEndpoint(endpoint),
 	)
 	logProvider := log.NewLoggerProvider(
 		log.WithResource(res),
@@ -95,6 +95,7 @@ func New(ctx context.Context, cfg Config) (*Telemetry, error) {
 	global.SetLoggerProvider(logProvider)
 
 	return &Telemetry{
+		cfg:           &cfg,
 		loggerHandler: loggerHandler,
 		tracer:        tracer,
 		shutdown: func(ctx context.Context) error { //TODO: replace with error group
